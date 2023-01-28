@@ -1,0 +1,131 @@
+#include <iostream>
+#include <vector>
+
+#define int int64_t
+using namespace std;
+
+const int INF = -2e18;
+
+struct node{
+    int v = 0;
+    node* l;
+    node* r;
+    int d = 0;
+    bool flag = false;
+
+    node(int v = -INF){
+        this->v = v;
+        l = r = 0;
+    }
+
+    node(node* l1, node* r1){
+        l = l1;
+        r = r1;
+        v = min(l->v, r->v);
+    }
+};
+
+void push(node* t){
+    if (t->flag){
+        t->l->v = t->l->d = t->r->d = t->r->v = t->d;
+        t->l->flag = t->r->flag = true;
+    }
+    else{
+        t->l->v += t->d;
+        t->r->v += t->d;
+        t->l->d += t->d;
+        t->r->d += t->d;
+    }
+    t->flag = false;
+    t->d = 0;
+}
+
+node *build(const vector<int> &a, int tl, int tr){
+    if (tl + 1 == tr){
+        return new node(a[tl]);
+    }
+    int tm = (tl + tr) / 2;
+    return new node(build(a, tl, tm), build(a, tm, tr));
+}
+
+int minim(node* t, int l, int r, int tl, int tr){
+    if (l <= tl && tr <= r)
+        return t->v;
+    push(t);
+    int tm = (tl + tr) / 2;
+    if (l >= tm){
+        return minim(t->r, l, r, tm, tr);
+    }
+    else if (r <= tm){
+        return minim(t->l, l, r, tl, tm);
+    }
+    return min(minim(t->l, l, tm, tl, tm), minim(t->r, tm, r, tm, tr));
+}
+
+void update(node* t, int pos, int new_val, int tl, int tr){
+    push(t);
+    if (tl + 1 == tr){
+        return void(t->v = new_val);
+    }
+    int tm = (tl + tr) / 2;
+    if (pos < tm){
+        update(t->l, pos, new_val, tl, tm);
+    }
+    else{
+        update(t->r, pos, new_val, tm, tr);
+    }
+    t->v = min(t->l->v, t->r->v);
+}
+
+void delta(node* t, int l, int r, int d, int tl, int tr, bool flag){
+    if (l <= tl && tr <= r){
+        if (!flag){
+            t->d += d, t->v += d;
+        }
+        else{
+            t->d = d, t->v = d, t->flag = true;
+        }
+        return;
+    }
+    push(t);
+    int tm = (tl + tr) / 2;
+    if (r <= tm){
+        delta(t->l, l, r, d, tl, tm, flag);
+    }
+    else if (l >= tm){
+        delta(t->r, l, r, d, tm, tr, flag);
+    }
+    else{
+        delta(t->l, l, tm, d, tl, tm, flag);
+        delta(t->r, tm, r, d, tm, tr, flag);
+    }
+    t->v = min(t->l->v, t->r->v);
+}
+
+int32_t main(){
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for (int i = 0; i < n; i++){
+        cin >> a[i];
+    }
+    node* root = build(a, 0, n);
+    string s;
+    while (cin >> s){
+        if (s == "min"){
+            int a, b;
+            cin >> a >> b;
+            cout << minim(root, a - 1, b, 0, n) << "\n";
+        }
+        if (s == "set"){
+            int l, r, new_val;
+            cin >> l >> r >> new_val;
+            delta(root,--l, r, new_val, 0, n, true);
+        }
+        if (s == "add"){
+            int l, r, new_val;
+            cin >> l >> r >> new_val;
+            delta(root, --l, r, new_val, 0, n, false);
+        }
+    }
+}
