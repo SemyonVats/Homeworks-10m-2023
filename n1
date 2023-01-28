@@ -1,0 +1,17 @@
+#include<bits/stdc++.h>
+#include<chrono>
+using namespace std;
+void mind(){
+        for(int i = 1; i < 1e6; i++){
+            cout << i << " " << this_thread::get_id() << endl;
+        }
+        cout << endl;
+}
+int main() {
+    thread A2(mind);
+    thread A3(mind);
+    thread A4(mind);
+    A2.join();
+    A3.join();
+    A4.join();
+}
