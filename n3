@@ -1,0 +1,43 @@
+#include<thread>
+#include<iostream>
+#include<mutex>
+#include<chrono>
+#include<vector>
+#define pb push_back
+using namespace std;
+int A = 0;
+mutex A_mtx;
+const int N = 10;
+const int POTOK = 18;
+void func(){
+    for(int i = 0 ; i < N ; i++){
+        A_mtx.lock();
+        int q;
+        cin >> q;
+        A += q;
+        A_mtx.unlock();
+    }
+}
+//void ban(){
+//    for(int i = 0 ; i < POTOK ; i++){
+//        thread F(func);
+//
+//    }
+//}
+void mind(){
+    A_mtx.lock();
+    cout << A << "\n";
+    A_mtx.unlock();
+}
+int main() {
+    vector<thread>A;
+    thread P(mind);
+    for(int i = 0 ; i < POTOK ; i++){
+        thread F(func);
+        A.push_back(move(F));
+    }
+    for(int i = 0; i < POTOK ; i++){
+        A[i].join();
+    }
+    P.join();
+}
