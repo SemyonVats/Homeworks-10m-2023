@@ -1,0 +1,56 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <map>
+#include <vector>
+#define int long long
+using namespace std;
+vector<string>bes;
+int y = 0;
+map<string,string> gorge;
+int k;
+bool res(string s , string t){
+    for(int i = 0 ; i < s.size() - k + 1 ; i++){
+        if(s.substr(i , k - 1) == t){
+            return true;
+        }
+    }
+    return false;
+}
+
+void func(int n){
+    for( ; y < n ; y++){
+        string s;
+        cin >> s;
+        bes.push_back(s);
+    }
+    return ;
+}
+void bold(int m ,int n){
+    for(int i = 0; i < m ; i++){
+        string s;
+        cin >> s;
+        bool t = 0;
+        while(t == 0 or y < n - 1){
+            for(int j = 0 ; j < y ; j++){
+                if(res(s , bes[j])){
+                    gorge[s] = bes[j];
+                    t = 1;
+                }
+            }
+        }
+    }
+}
+signed main(){
+    int n , m , k;
+    cin >> n >> m >> k;
+    thread A1(func , n);
+    thread A2(bold , m , n);
+    cout << gorge.size();
+}
+
+//
+Разговор двух психиатров: — У меня сейчас очень интересный случай с раздвоением личности!
+— Да, и что же в нем интересного!
+— Дело в том, что каждого я уговорил платить мне за лечение!
+//
